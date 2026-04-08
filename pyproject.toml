@@ -3,13 +3,14 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gridworld"
+name = "GridFinder"
 version = "0.1.0"
-description = "Tool for testing table-based Reinforcement Learning algorithms"
+description = "Tool for testing table-based Reinforcement Learning algorithms and Comparing them to traditional smart search methods"
 readme = "README.md"
 requires-python = ">=3.13"
 license = { text = "MIT" }
 authors = [
+  { name = "Joshua Stenger", email = "JoshuaStenger12@outlook.com" },
   { name = "Prasenjit Karmakar", email = "prasenjitkarmakar52282@gmail.com" },
 ]
 dependencies = [
@@ -31,7 +32,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/prasenjit52282/GridWorld"
+Homepage = "https://github.com/StengerJ/GridFinder"
 
 [tool.setuptools]
 include-package-data = true

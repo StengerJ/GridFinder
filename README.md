@@ -3,13 +3,36 @@
 <img src="./assets/gridworldenv.png" align="left" width="40%"/>Gridworld is a tool for easily producing custom grid environments to test model-based and model-free classical/DRL Reinforcement Learning algorithms. The package provides an uniform way of defining a grid-world and place agent, goal state, and risky regions. Further, it builds the transition probability matrix (P_sas) and the reward matrix (R_sa) from the defined environment to test planning algorithms. Moreover, for model-free algorithms, the package provides a openai-gym like interface to interact with the environment and explore.
 <br clear="left"/>
 
+# Prerequisites
+This repo uses UV to manage python versions and installed packages.
+If you do not have UV installed please take time to install it from here
+<a href='https://docs.astral.sh/uv/getting-started/installation/'>Install UV from here!</a>
+
 # Installation
-This repo now targets Python 3.13+ on CPython. To install it in a fresh environment run:
+This repo targets Python 3.13+ on CPython. The recommended setup uses `uv` to install Python, create a virtual environment, and install the required packages.
+
 ```bash
-git clone https://github.com/prasenjit52282/GridWorld.git
-cd GridWorld
-python -m pip install -r Requirements.txt
-python -m pip install -e .
+git clone https://github.com/StengerJ/GridFinder
+cd GridFinder
+uv python install 3.13
+uv venv .venv --python 3.13
+```
+
+Activate the virtual environment:
+
+```bash
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+source .venv/bin/activate
+```
+
+Install all required packages with `uv`:
+
+```bash
+uv pip install -r Requirements.txt
+uv pip install -e .
 ```
 
 # Model-based
@@ -193,4 +216,6 @@ test.py
 ```
 
 # Contact Me
-This is Assignment I & II of CS60077: Reinforcement Learning course in IIT Kharagpur, taught by Dr. Aritra Hazra. I hope that the gridworld tool will be useful in your RL-journey. For questions and general feedback, contact [Prasenjit Karmakar](https://www.linkedin.com/in/prasenjit52282).
+For issues or additions to the A* search and Proximal Policy Optimization implementations/examples please contact [Joshua Stenger](https://www.linkedin.com/in/joshuastenger22/)
+
+For questions and general feedback about the GridWorld environment, contact [Prasenjit Karmakar](https://www.linkedin.com/in/prasenjit52282).
