@@ -5,7 +5,9 @@
 
 # Prerequisites
 This repo uses UV to manage python versions and installed packages.
+<br>
 If you do not have UV installed please take time to install it from here
+<br>
 <a href='https://docs.astral.sh/uv/getting-started/installation/'>Install UV from here!</a>
 
 # Installation
