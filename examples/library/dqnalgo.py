@@ -2,9 +2,9 @@ import numpy as np
 from .nn import Q_network
 from .memory import replayBuffer
 from tensorflow import GradientTape
-from tensorflow.keras.optimizers.legacy import RMSprop
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.optimizers import RMSprop
 
 class dqn:
     def __init__(self,input_size,action_size,memory_size=100000,gamma=0.99,

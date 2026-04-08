@@ -1,4 +1,3 @@
-from copy import deepcopy
 import time
 import numpy as np
 import tensorflow as tf
@@ -33,7 +32,7 @@ class TRPO:
         self.envs=envs
         self.test_env=test_env
         self.ac_network=actor_critic
-        self.temp_ac_network=deepcopy(self.ac_network)
+        self.temp_ac_network=self.ac_network.clone()
 
         self.n_steps=n_steps
         self.epochs=epochs
@@ -54,7 +53,7 @@ class TRPO:
         self.backtrack_iters=backtrack_iters
         self.cliprange_vf=cliprange_vf
 
-        self.optimizer=tf.keras.optimizers.legacy.Adam(learning_rate=self.learning_rate)
+        self.optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         if only_test:self.logger=None
         else:self.logger=TensorboardLogger(loc=log_loc,experiment="TRPO")
         self.log=log

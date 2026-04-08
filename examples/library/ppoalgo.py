@@ -46,7 +46,7 @@ class PPO2:
 		self.cliprange=cliprange
 		self.cliprange_vf=cliprange_vf
 
-		self.optimizer=tf.keras.optimizers.legacy.Adam(learning_rate=self.learning_rate)
+		self.optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 		if only_test:self.logger=None
 		else:self.logger=TensorboardLogger(loc=log_loc,experiment="PPO")
 

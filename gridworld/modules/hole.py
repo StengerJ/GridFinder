@@ -1,11 +1,12 @@
 import pygame as pg
-import pkg_resources
+
+from ._resources import image_path
 from .block import Block
 
 class Hole(pg.sprite.Sprite):
     def __init__(self,col,row):
         super().__init__()
-        fpath=pkg_resources.resource_filename(__name__,'images/hole.png')
+        fpath=image_path("hole.png")
         self.image=pg.transform.scale(pg.image.load(fpath),Block.getBlockSize())
         self.rect=self.image.get_rect()
         self.pos=pg.Vector2(col,row)

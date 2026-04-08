@@ -1,7 +1,14 @@
 /**/__pycache__
 /**/.ipynb_checkpoints
 *.ipynb
+*.py[cod]
 build
 dist
 *.egg-info
 /**/.DS_Store
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+logs/astar/

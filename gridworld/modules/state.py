@@ -1,5 +1,6 @@
 import pygame as pg
-import pkg_resources
+
+from ._resources import image_path
 from .block import Block
 
 class State(pg.sprite.Sprite):
@@ -22,5 +23,5 @@ class State(pg.sprite.Sprite):
     def change_with_policy(self,state_dict,policy): #policy={0:'up',1:'down'} etc
         state=state_dict[(self.pos.x,self.pos.y)]['state']
         optimal_action=policy[state]
-        fpath=pkg_resources.resource_filename(__name__,'images/'+optimal_action+'.png')
+        fpath=image_path(f"{optimal_action}.png")
         self.image=pg.transform.scale(pg.image.load(fpath),(int(Block.sizeX//2.5),int(Block.sizeY//2.5)))

@@ -1,12 +1,13 @@
-import gym
 import numpy as np
 import pygame as pg
-from collections import deque
-from gym.spaces import Box,Discrete
 from collections import defaultdict
+from collections import deque
+from textwrap import dedent
+
+from ._compat import Box, Discrete, Env
 from .modules import Agent, Wall, Goal, State, Hole, Block
 
-class GridWorld(gym.Env):
+class GridWorld(Env):
     def __init__(self,world,slip=0.2,log=False,max_episode_step=1000,blocksize=(50,50),isDRL=False,viewsize=10,random_state=None):
         super().__init__()
         Block.setBlockSize(*blocksize)
@@ -15,7 +16,7 @@ class GridWorld(gym.Env):
         self.seed=random_state
         np.random.seed(random_state)
 
-        self.world=world.split('\n    ')[1:-1]
+        self.world=dedent(world).strip('\n').splitlines()
         self.action_map={0:'right',1:'down',2:'left',3:'up'}
         self.action_values=[0,1,2,3]
         self.action_size=len(self.action_values)
@@ -227,7 +228,7 @@ class GridWorld(gym.Env):
         return P_sas,R_sa
 
 
-class ractGridWorld(gym.Env):
+class ractGridWorld(Env):
     def __init__(self,world,slip=0.2,log=False,max_episode_step=1000,blocksize=(50,50),isDRL=False,viewsize=10,random_state=None,repeat_act=4):
         super().__init__()
         self.repeat_act=repeat_act

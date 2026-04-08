@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gridworld"
+version = "0.1.0"
+description = "Tool for testing table-based Reinforcement Learning algorithms"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [
+  { name = "Prasenjit Karmakar", email = "prasenjitkarmakar52282@gmail.com" },
+]
+dependencies = [
+  "cloudpickle==3.1.2",
+  "matplotlib==3.10.8",
+  "numpy==2.4.4",
+  "pillow==12.2.0",
+  "pygame==2.6.1",
+  "tensorflow-cpu==2.21.0",
+  "tqdm==4.67.3",
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[project.urls]
+Homepage = "https://github.com/prasenjit52282/GridWorld"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gridworld*"]
+
+[tool.setuptools.package-data]
+"gridworld.modules" = ["images/*.png"]

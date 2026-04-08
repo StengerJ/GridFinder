@@ -1,14 +1,15 @@
 import numpy as np
 import pygame as pg
-import pkg_resources
-from .block import Block
 from itertools import product
+
+from ._resources import image_path
+from .block import Block
 
 class Agent(pg.sprite.Sprite):
     def __init__(self,col,row,log):
         super().__init__()
         self.log=log
-        fpath=pkg_resources.resource_filename(__name__,'images/agent.png')
+        fpath=image_path("agent.png")
         self.image=pg.transform.scale(pg.image.load(fpath),Block.getBlockSize())
         self.rect=self.image.get_rect()
         self.initial_position=pg.Vector2(col,row)

@@ -33,7 +33,7 @@ with open("./logs/policy_eval/report.txt","w") as f:f.write(report)
 print(report)
 
 plt.plot(v_values,lw=3,ls='--')
-plt.ylabel('$|V|_{\infty}$',fontsize=16)
+plt.ylabel(r'$|V|_{\infty}$',fontsize=16)
 plt.xlabel('DP Iteration',fontsize=16)
 plt.tight_layout()
 plt.savefig("./logs/policy_eval/pi_eval_v.png")

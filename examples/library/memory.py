@@ -50,4 +50,4 @@ class Memory:
                                      shuffle(self.shuffle_buffer_size).\
                                      repeat(self.epochs).\
                                      batch(self.batch_size,drop_remainder=True).\
-                                     prefetch(tf.data.experimental.AUTOTUNE)
+                                     prefetch(tf.data.AUTOTUNE)

@@ -4,12 +4,12 @@
 <br clear="left"/>
 
 # Installation
-To install the package in your python(>=3.9) environment you need to run the below commands:
+This repo now targets Python 3.13+ on CPython. To install it in a fresh environment run:
 ```bash
 git clone https://github.com/prasenjit52282/GridWorld.git
 cd GridWorld
-pip install -r Requirements.txt
-python setup.py install
+python -m pip install -r Requirements.txt
+python -m pip install -e .
 ```
 
 # Model-based
@@ -132,6 +132,8 @@ To elaborate the usage of the package, examples folder contains several classica
     > ```python examples/trpo.py```
 * Proximal Policy Optimization
     > ```python examples/ppo.py```
+* A* Search
+    > ```python examples/search/Astar/main.py --world small```
 
 # Testing DRL algorithms
 To test any of the above DRL algorithms in the gridworld environment use the following code
@@ -141,6 +143,15 @@ python examples/[algo_name].py --init_from_exp [ALGO_NAME] --test --render
 ```
 
 The underlined gridworld environment object is defined in "examples/gridenv.py", and the logs of each algorithm is getting stored in the "logs" folder.
+
+# A* Search
+The repo also includes a deterministic A* example under `examples/search/Astar/`. It uses Manhattan distance to the nearest goal, expands 4-neighbor moves, blocks walls, and excludes holes from the search frontier.
+
+```bash
+python examples/search/Astar/main.py --world small
+python examples/search/Astar/main.py --world big
+python examples/search/Astar/main.py --world small --no-render
+```
 
 # File Structure
 If you want to have your own agent and goal along with differnt objects to represent the wall and normal states, you can change the respective images in "/gridworld/modules/images"
@@ -177,7 +188,7 @@ requirements.txt
 .gitignore
 LICENSE
 MANIFEST.in
-setup.py
+pyproject.toml
 test.py
 ```
 

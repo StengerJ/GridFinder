@@ -2,7 +2,6 @@ import numpy as np
 from .constants import H
 from .helper import assign_vars
 import tensorflow as tf
-import tensorflow_probability as tfp
 from tensorflow import multiply,random
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense
@@ -71,10 +70,6 @@ class ActorCritic(Q_network):
 		self.action_size=action_size
 		random.set_seed(seed)
 		self.setup_nn(self.trainable,init_from_exp)
-
-	@property
-	def trainable_variables(self):
-		return self.logits.trainable_variables+self.val.trainable_variables
 	
 	def setup_nn(self,trainable,init_from_exp=None):
 		self.val=self.critic_network()
@@ -84,6 +79,7 @@ class ActorCritic(Q_network):
 			self.logits=self.load_ppoModel(init_from_exp)
 		self.val.trainable=trainable
 		self.logits.trainable=trainable
+		self.trainable_variables=self.logits.trainable_variables+self.val.trainable_variables
 
 	def Dense_network(self,name="ppo"):
 		ann=Sequential(name=name)
@@ -103,37 +99,46 @@ class ActorCritic(Q_network):
 		return critic
 
 	def actor_head(self,s):
-		logits=self.logits(s)
-		dist=tfp.distributions.Categorical(logits=logits)
-		return dist
+		return self.logits(s)
 
 	def critic_head(self,s):
 		val=self.val(s)
 		return val
 
+	def _selected_log_probs(self,logits,a):
+		actions=tf.cast(tf.reshape(a,(-1,)),tf.int32)
+		log_probs=tf.nn.log_softmax(logits,axis=-1)
+		action_mask=tf.one_hot(actions,self.action_size,dtype=log_probs.dtype)
+		return tf.reduce_sum(action_mask*log_probs,axis=1,keepdims=True)
+
+	def _entropy(self,logits):
+		log_probs=tf.nn.log_softmax(logits,axis=-1)
+		probs=tf.nn.softmax(logits,axis=-1)
+		return -tf.reduce_sum(probs*log_probs,axis=1)
+
 	def action_log_prob_value(self,s):
-		dist=self.actor_head(s)
+		logits=self.actor_head(s)
 		val=self.critic_head(s)
-		a=dist.sample().numpy()
+		a=tf.squeeze(tf.random.categorical(logits,1,dtype=tf.int32),axis=1)
+		log_prob=self._selected_log_probs(logits,a)
 		#a,log_prob(s,a),v(s) --nograd
-		return a,dist.log_prob(a).numpy().reshape(-1,1),val.numpy()
+		return a.numpy(),log_prob.numpy(),val.numpy()
 
 	def log_prob_value_entropy(self,s,a):
-		dist=self.actor_head(s)
+		logits=self.actor_head(s)
 		val=self.critic_head(s)
 		#log_prob(s,a),v(s),entropy(s) --withgrad
-		return tf.reshape(dist.log_prob(a),shape=(-1,1)),val,dist.entropy()
+		return self._selected_log_probs(logits,a),val,self._entropy(logits)
 
 	def log_prob_entropy(self,s,a):
-		dist=self.actor_head(s)
-		val=self.critic_head(s)
 		#log_prob(s,a),entropy(s) --withgrad
-		return tf.reshape(dist.log_prob(a),shape=(-1,1)),dist.entropy()
+		logits=self.actor_head(s)
+		return self._selected_log_probs(logits,a),self._entropy(logits)
 
 	def log_prob(self,s,a):
-		dist=self.actor_head(s)
 		#log_prob(s,a)
-		return tf.reshape(dist.log_prob(a),shape=(-1,1))
+		logits=self.actor_head(s)
+		return self._selected_log_probs(logits,a)
 
 	def value_with_grad(self,s):
 		val=self.critic_head(s)
@@ -150,6 +155,21 @@ class ActorCritic(Q_network):
 	def learned_action(self,s):
 		logits=self.logits(np.array([s]))
 		return tf.math.argmax(logits,axis=1).numpy()[0]
+
+	def clone(self):
+		clone=ActorCritic(
+			input_size=self.input_size,
+			action_size=self.action_size,
+			trainable=self.logits.trainable and self.val.trainable,
+			exp_name=self.exp_name,
+			seed=None,
+		)
+		clone.logits.set_weights(self.logits.get_weights())
+		clone.val.set_weights(self.val.get_weights())
+		clone.logits.trainable=self.logits.trainable
+		clone.val.trainable=self.val.trainable
+		clone.trainable_variables=clone.logits.trainable_variables+clone.val.trainable_variables
+		return clone
 
 	def load_ppoModel(self,init_from_exp):
 		return load_model(f"./model/{init_from_exp}_ac.h5")

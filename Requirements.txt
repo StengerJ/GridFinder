@@ -1,8 +1,7 @@
-pygame==2.5.0
-numpy==1.23.5
-matplotlib==3.6.3
-pillow==9.4.0
-tqdm==4.64.0
-gym==0.26.2
-tensorflow==2.14.0
-tensorflow-probability==0.22.1
+cloudpickle==3.1.2
+matplotlib==3.10.8
+numpy==2.4.4
+pillow==12.2.0
+pygame==2.6.1
+tensorflow-cpu==2.21.0
+tqdm==4.67.3
