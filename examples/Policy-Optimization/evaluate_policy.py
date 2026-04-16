@@ -39,9 +39,9 @@ def main():
             fps=args.fps,
         )
         print(
-            f"stage={stage} episodes={int(metrics['episodes'])} avg_return={metrics['avg_return']:.3f} "
-            f"avg_steps={metrics['avg_steps']:.2f} success_rate={metrics['success_rate']:.3f} "
-            f"hole_rate={metrics['hole_rate']:.3f} timeout_rate={metrics['timeout_rate']:.3f}"
+            f"stage={stage} episodes={int(metrics['episodes'])} avg_return={metrics['avg_return']} "
+            f"avg_steps={metrics['avg_steps']} success_rate={metrics['success_rate']} "
+            f"hole_rate={metrics['hole_rate']} timeout_rate={metrics['timeout_rate']}"
         )
     return 0
 

@@ -32,9 +32,9 @@ def print_eval_summary(stage, metrics):
     """Prints one concise evaluation summary line."""
 
     print(
-        f"eval stage={stage} episodes={int(metrics['episodes'])} avg_return={metrics['avg_return']:.3f} "
-        f"avg_steps={metrics['avg_steps']:.2f} success_rate={metrics['success_rate']:.3f} "
-        f"hole_rate={metrics['hole_rate']:.3f} timeout_rate={metrics['timeout_rate']:.3f}"
+        f"eval stage={stage} episodes={int(metrics['episodes'])} avg_return={metrics['avg_return']} "
+        f"avg_steps={metrics['avg_steps']} success_rate={metrics['success_rate']} "
+        f"hole_rate={metrics['hole_rate']} timeout_rate={metrics['timeout_rate']}"
     )
 
 
@@ -44,7 +44,7 @@ def print_test_summary(result, rendered):
     prefix = "rendered_test" if rendered else "test"
     print(
         f"{prefix} map_file={result['map_file']} result={result['result']} "
-        f"steps={int(result['steps'])} return={result['return']:.3f}"
+        f"steps={int(result['steps'])} return={result['return']}"
     )
 
 

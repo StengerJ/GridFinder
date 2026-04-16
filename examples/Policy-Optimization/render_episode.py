@@ -37,7 +37,7 @@ def main():
     )
     print(
         f"map_file={result['map_file']} result={result['result']} "
-        f"steps={int(result['steps'])} return={result['return']:.3f}"
+        f"steps={int(result['steps'])} return={result['return']}"
     )
     return 0
 
