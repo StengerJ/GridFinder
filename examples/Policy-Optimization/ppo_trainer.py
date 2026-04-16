@@ -429,4 +429,4 @@ if __name__ == "__main__":
     """Allows the IDE run button on this file to launch the full PPO pipeline."""
 
     from main import main as pipeline_main
-    raise SystemExit(pipeline_main())
+    pipeline_main()
