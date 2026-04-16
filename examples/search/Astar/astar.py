@@ -1,7 +1,7 @@
 import heapq
 from itertools import count
 
-
+# Valid moves tuples that represent the change in coordinates for each action.
 VALID_MOVE_TUPLES = {
     0: (1, 0),
     1: (0, 1),
@@ -11,6 +11,17 @@ VALID_MOVE_TUPLES = {
 
 
 class AStartResult:
+    """
+    Class that encapsulates the result of the A* search algorithm.
+    Attributes:
+    - found: A boolean indicating whether a path to the goal was found.
+    - goal: The coordinates of the goal reached, or None if no path was found.
+    - path: A list of coordinates representing the path from the start to the goal.
+    - actions: A list of actions taken to reach each coordinate in the path.
+    - step_cost: The total cost of the steps taken to reach the goal.
+    - expanded_nodes: The number of nodes expanded during the search.
+
+    """
     def __init__(
         self,
         seen: bool,
@@ -41,7 +52,7 @@ def constructPath(
     start: tuple[int, int],
     goal: tuple[int, int],
     parents: dict[tuple[int, int], tuple[int, int]],
-    actions: dict[tuple[int, int], int],
+    actions_to: dict[tuple[int, int], int],
 ) -> tuple[list[tuple[int, int]], list[int]]:
     """
     Reconstructs the path from the start coordinate to the goal coordinate using the parents and actions dictionaries.
@@ -51,15 +62,15 @@ def constructPath(
     taken to reach each coordinate. Finally, it reverses the path and actions to return them in the correct order from start to goal.
     """
     path = [goal]
-    actions = []
+    path_actions = []
     current = goal
     while current != start:
-        actions.append(actions[current])
+        path_actions.append(actions_to[current])
         current = parents[current]
         path.append(current)
     path.reverse()
-    actions.reverse()
-    return path, actions
+    path_actions.reverse()
+    return path, path_actions
 
 
 def getStart(env) -> tuple[int, int]:
@@ -96,10 +107,22 @@ def iterateThroughNeighbors(env, coord: tuple[int, int]):
         info = env.state_dict.get(next_coord)
         if info is None or info["type"] == "hole" or info["type"] == "wall":
             continue
-        yield action, next_coord
+        yield action, next_coord 
+        # yielding moves one at a time to avoid storing all neighbors in memory at once returns an iterator that can be used in a for loop or with next() to get the next neighbor
 
 
 def aStarSearch(env) -> AStartResult:
+    """
+    Implements the A* search algorithm to find the optimal path from the start coordinate to the nearest goal coordinate in the given environment.
+    The algorithm uses a priority queue (min-heap) to explore the nodes based on their estimated total cost achieved from a heustric function (h) and the actual cost from the start node (g).
+    It maintains a dictionary of the best g-costs found for each coordinate, as well as dictionaries to track the parent coordinates and actions taken to reach each coordinate. 
+    The search continues until a goal is found or the frontier is exhausted, at which point it returns an AStartResult object containing information about the search outcome, including whether a path was found, the goal reached, the path taken, the actions taken, the step cost, and the number of expanded nodes.
+    """
+
+    # Attempted to implement this algorithm from this website. Modified to fit the environment and requirements of the project.
+    # https://www.geeksforgeeks.org/dsa/a-search-algorithm/
+    # Algorithm doesn't specify to use the yield keyword, but it is more efficient to use it to avoid storing all neighbors in memory at once, especially in larger environments.
+
     start = getStart(env)
     goals = getGoal(env)
     if not goals:

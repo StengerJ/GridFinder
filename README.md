@@ -1,17 +1,16 @@
 # GridWorld
 
-<img src="./assets/gridworldenv.png" align="left" width="40%"/>Gridworld is a tool for easily producing custom grid environments to test model-based and model-free classical/DRL Reinforcement Learning algorithms. The package provides an uniform way of defining a grid-world and place agent, goal state, and risky regions. Further, it builds the transition probability matrix (P_sas) and the reward matrix (R_sa) from the defined environment to test planning algorithms. Moreover, for model-free algorithms, the package provides a openai-gym like interface to interact with the environment and explore.
+<img src="./assets/gridworldenv.png" align="left" width="40%"/>GridWorld is a small grid-environment project for experimenting with pathfinding and partially observable policy learning. The repository is now intentionally focused on two search paths only:
+
+- deterministic A* search
+- the file-backed PyTorch PPO example
+
+The core `gridworld` package still provides the environment, rendering, transition model construction, and the gym-like `reset` / `step` interface used by those two paths.
 <br clear="left"/>
 
-# Prerequisites
-This repo uses UV to manage python versions and installed packages.
-<br>
-If you do not have UV installed please take time to install it from here:
-<br>
-<a href='https://docs.astral.sh/uv/getting-started/installation/'>Install UV from here!</a>
-
 # Installation
-This repo targets Python 3.13+ on CPython. The recommended setup uses `uv` to install Python, create a virtual environment, and install the required packages.
+
+This repo targets Python 3.13+ on CPython and uses `uv`.
 
 ```bash
 git clone https://github.com/StengerJ/GridFinder
@@ -30,194 +29,71 @@ Activate the virtual environment:
 source .venv/bin/activate
 ```
 
-Install all required packages with `uv`:
+Install dependencies:
 
 ```bash
 uv pip install -r Requirements.txt
 uv pip install -e .
 ```
 
-# Model-based
-See how we define the custom-grid world "a" being agents location, "g" being the goal, "o" being holes, and "w" being walls to obstruct the agent. For a model-based setup we can access the transition and reward dynamics "P_sas" and "R_sa" as shown below.
+# Core Grid Usage
+
 ```python
-import numpy as np
 from gridworld import GridWorld
 
-world=\
-    """
-    wwwwwwwwwwwwwwwww
-    wa   o   w     gw
-    w               w
-    www  o   www  www
-    w               w
-    wwwww    o    www
-    w     ww        w
-    wwwwwwwwwwwwwwwww
-    """
-    
-env=GridWorld(world,slip=0.2) # Slip is the degree of stochasticity of the gridworld.
+world = """
+wwwww
+wa gw
+w o w
+wwwww
+"""
 
-# Value Iteratioin
-V=np.zeros((env.state_count,1))
-V_prev=np.random.random((env.state_count,1))
-eps=1e-7
-gamma=0.9
+env = GridWorld(world, slip=0.0, random_state=7)
+state = env.reset()
+next_state, reward, done, info = env.step(0, testing=True)
 
-while np.abs(V-V_prev).sum()>eps:
-    Q_sa=env.R_sa+gamma*np.squeeze(np.matmul(env.P_sas,V),axis=2)
-    V_prev=V.copy()
-    V=np.max(Q_sa,axis=1,keepdims=True)
-    pi=np.argmax(Q_sa,axis=1)
-
-print("Pi:",pi)
-env.show(pi)  # Show the policy in graphical window and we can control the agent using the arrow-keys
+print(state, next_state, reward, done, info)
+print(env.P_sas.shape, env.R_sa.shape)
 ```
-The policy is shown below:
-```
-Pi: [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,
-     3, 0, 0, 0, 3, 3, 2, 2, 0, 0, 0, 3, 0, 0, 0, 3, 3, 0, 0, 0, 0, 3,
-     0, 0, 0, 0, 3, 3, 2, 2]
-
-# where mapping is {0:'right',1:'down',2:'left',3:'up'}
-```
-<img src="./assets/holesolved.png" width="60%"/>
-
-# Model-Free
-See how we define the custom-grid world "a" being agents location, "g" being the goal, "o" being holes, and "w" being walls to obstruct the agent. For a model-free setup we can interact with the environment with a openai-gym like interface and observe the <S,A,R,S'> tuples as shown below.
-```python
-import time
-import numpy as np
-from gridworld import GridWorld
-
-world=\
-    """
-    wwwwwwwwwwwwwwwww
-    wa       w     gw
-    w      www      w
-    wwwww    www  www
-    w      www      w
-    wwwww    www  www
-    w     ww        w
-    wwwwwwwwwwwwwwwww
-    """
-    
-env=GridWorld(world,slip=0.2,max_episode_step=1000) # Beyond max_episode_step interaction, agent get a timelimit error
-
-for i in range(100): # Number of episodes
-    curr_state=env.reset()
-    done=False
-    while not done:
-        env.render() # [Optional] only if you want to monitor the progress
-        action=env.random_action() # Select by the agent's policy
-        next_state,reward,done,info=env.step(action) # Openai-gym like interface
-        print(f"<S,A,R,S'>=<{curr_state},{action},{reward},{next_state}>")
-        curr_state=next_state
-        time.sleep(0.1) # Just to see the actions
-env.close() # Must close when rendering is enabled
-```
-State Transitions are printed:
-```
-<S,A,R,S'>=<0,1,-1,14>
-<S,A,R,S'>=<14,1,-1,15>
-<S,A,R,S'>=<15,1,-1,14>
-<S,A,R,S'>=<14,1,-1,14>
-<S,A,R,S'>=<14,0,-1,15>
-<S,A,R,S'>=<15,1,-1,15>
-<S,A,R,S'>=<15,3,-1,1>
-<S,A,R,S'>=<1,3,-1,1>
-<S,A,R,S'>=<1,3,-1,1>
-<S,A,R,S'>=<1,1,-1,15>
-<S,A,R,S'>=<15,3,-1,1>
-<S,A,R,S'>=<1,3,-1,1>
-<S,A,R,S'>=<1,3,-1,1>
- ....
-# Each state is uniquely identified by state ID (e.g., o, 1, 2, ...)
-```
-<img src="./assets/modelFree.gif" width="60%"/>
-
-# Examples
-To elaborate the usage of the package, examples folder contains several classical and Deep Reinforcement Learning algorithms that is tested on this platform. The algorithms are as follow:
-
-* Policy Evaluation 
-    > ```python examples/policy_eval.py```
-* Policy Iteration 
-    > ```python examples/policy_itr.py```
-* Value Iteration 
-    > ```python examples/value_itr.py```
-* Safe Monti-Carlo 
-    > ```python examples/safe_mc.py```
-* Safe SARSA 
-    > ```python examples/safe_sarsa.py```
-* Deep Q Network
-    > ```python examples/dqn.py```
-* Natural Policy Gradient
-    > ```python examples/npg.py```
-* Trust Region Policy Optimization 
-    > ```python examples/trpo.py```
-* Proximal Policy Optimization
-    > ```python examples/ppo.py```
-* A* Search
-    > ```python examples/search/Astar/main.py --world small```
-
-# Testing DRL algorithms
-To test any of the above DRL algorithms in the gridworld environment use the following code
-```bash
-python examples/[algo_name].py --init_from_exp [ALGO_NAME] --test --render
-# example: python examples/ppo.py --init_from_exp PPO --test --render
-```
-
-The underlined gridworld environment object is defined in "examples/gridenv.py", and the logs of each algorithm is getting stored in the "logs" folder.
 
 # A* Search
-The repo also includes a deterministic A* example under `examples/search/Astar/`. It uses Manhattan distance to the nearest goal, expands 4-neighbor moves, blocks walls, and excludes holes from the search frontier.
+
+The deterministic A* example lives in `examples/search/Astar/` and reads committed maps from `examples/maps/search/`.
+
+- `25` small maps are stored in `examples/maps/search/small/`
+- `25` large maps are stored in `examples/maps/search/large/`
+
+Example commands:
 
 ```bash
 python examples/search/Astar/main.py --world small
 python examples/search/Astar/main.py --world big
-python examples/search/Astar/main.py --world small --no-render
+python examples/search/Astar/main.py --world small --variant 7
+python examples/search/Astar/main.py --world big --variant 12 --no-render
 ```
 
-# File Structure
-If you want to have your own agent and goal along with differnt objects to represent the wall and normal states, you can change the respective images in "/gridworld/modules/images"
-```
-assets
-examples
-    └── gridenv.py
-    └── helper.py
-    └── policy_eval.py
-    └── policy_itr.py
-    └── value_itr.py
-    └── safe_mc.py
-    └── safe_sarsa.py
-    └── dqn.py
-    └── npg.py
-    └── trpo.py
-    └── ppo.py
-gridworld
-    └── modules
-        └── images
-            └── agent.png
-            └── goal.png
-            └── wall.png
-            └── {direction}.png
-        └── __init__.py
-        └── agent.py
-        └── goal.py
-        └── state.py
-        └── wall.py
-    └── __init__.py
-    └── gridworld.py
-logs
-requirements.txt
-.gitignore
-LICENSE
-MANIFEST.in
-pyproject.toml
-test.py
+# File-Backed PPO
+
+The PPO example lives in `examples/Policy-Optimization/` and trains on committed map corpora stored under `examples/maps/policy_optimization/`.
+
+- `train/stage1`, `train/stage2`, `train/stage3` each contain `64` maps
+- `eval/stage1`, `eval/stage2`, `eval/stage3` each contain `16` held-out maps
+
+Useful commands:
+
+```bash
+python examples/Policy-Optimization/generate_map_corpus.py --force
+python examples/Policy-Optimization/train_ppo.py
+python examples/Policy-Optimization/evaluate_policy.py --checkpoint logs/policy_optimization/checkpoints/best.pt --stage 3
+python examples/Policy-Optimization/render_episode.py --checkpoint logs/policy_optimization/checkpoints/best.pt --stage 3
 ```
 
-# Contact Me
-For issues or additions to the A* search and Proximal Policy Optimization implementations/examples please contact [Joshua Stenger](https://www.linkedin.com/in/joshuastenger22/)
+More detail is in [examples/Policy-Optimization/README.md](examples/Policy-Optimization/README.md).
 
-For questions and general feedback about the GridWorld environment, contact [Prasenjit Karmakar](https://www.linkedin.com/in/prasenjit52282).
+# Tests
+
+Run the current test suite with:
+
+```bash
+python -m unittest discover -s tests
+```

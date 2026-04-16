@@ -1,13 +1,9 @@
-from __future__ import annotations
-
 import os
 import unittest
 
 import numpy as np
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
-
-from examples.library.gridenv import small_env_fn
 from gridworld import GridWorld, ractGridWorld
 
 
@@ -20,12 +16,7 @@ wwwww
 
 
 class TestGridWorld(unittest.TestCase):
-    def test_small_env_fn_uses_random_state_keyword(self):
-        env = small_env_fn(7)
-        try:
-            self.assertIsNotNone(env.reset())
-        finally:
-            env.close()
+    """Covers the remaining core GridWorld behavior used by A* and PPO."""
 
     def test_gridworld_builds_model_and_steps(self):
         env = GridWorld(WORLD, slip=0.0, random_state=7)
@@ -40,6 +31,13 @@ class TestGridWorld(unittest.TestCase):
             self.assertEqual(env.P_sas.shape, (env.state_count, env.action_size, env.state_count))
             self.assertEqual(env.R_sa.shape, (env.state_count, env.action_size))
             self.assertTrue(np.allclose(env.P_sas.sum(axis=2), 1.0))
+        finally:
+            env.close()
+
+    def test_gridworld_reset_uses_random_state_keyword(self):
+        env = GridWorld(WORLD, slip=0.0, random_state=7)
+        try:
+            self.assertIsNotNone(env.reset())
         finally:
             env.close()
 

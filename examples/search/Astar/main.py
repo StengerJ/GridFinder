@@ -1,30 +1,32 @@
-from __future__ import annotations
+"""Command-line entry point for deterministic A* runs on disk-backed search maps."""
+
 import argparse
 from pathlib import Path
-import sys
 import time
+
 import pygame as pg
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-EXAMPLES_ROOT = REPO_ROOT / "examples"
-for path in (REPO_ROOT, EXAMPLES_ROOT):
-    path_str = str(path)
-    if path_str not in sys.path:
-        sys.path.insert(0, path_str)
+try:
+    from . import path_setup
+except ImportError:
+    import path_setup
 
 from examples.search.Astar.astar import aStarSearch
 from gridworld import GridWorld
-from library.gridenv import big_world, small_world
+from utilities.map_loader import load_world
 
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
+EXAMPLES_ROOT = REPO_ROOT / "examples"
+MAP_ROOT = EXAMPLES_ROOT / "maps" / "search"
 
 WORLD_CONFIG = {
     "small": {
-        "world": small_world,
+        "dir": MAP_ROOT / "small",
         "kwargs": {"max_episode_step": 1000, "random_state": 42},
     },
     "big": {
-        "world": big_world,
+        "dir": MAP_ROOT / "large",
         "kwargs": {
             "max_episode_step": 2000,
             "blocksize": (17, 17),
@@ -34,14 +36,32 @@ WORLD_CONFIG = {
 }
 
 
-def build_env(world_name: str) -> GridWorld:
+def get_world_path(world_name: str, variant: int) -> Path:
+    """Resolves a 1-based world variant to its text-file path."""
+
+    if variant < 1:
+        raise ValueError("--variant must be at least 1.")
     config = WORLD_CONFIG[world_name]
-    return GridWorld(config["world"], slip=0.0, log=False, **config["kwargs"])
+    world_path = config["dir"] / f"map_{variant:03d}.txt"
+    if not world_path.exists():
+        raise FileNotFoundError(f"Map variant not found: {world_path}")
+    return world_path
 
 
-def format_report(world_name: str, result, env: GridWorld) -> str:
+def build_env(world_name: str, variant: int = 1) -> GridWorld:
+    """Builds a deterministic GridWorld from a selected disk-backed map variant."""
+
+    config = WORLD_CONFIG[world_name]
+    world_text, _ = load_world(get_world_path(world_name, variant), min_starts=1, max_starts=1, min_goals=1)
+    return GridWorld(world_text, slip=0.0, log=False, **config["kwargs"])
+
+
+def format_report(world_name: str, variant: int, result, env: GridWorld) -> str:
+    """Formats the search result into the short report written to disk and stdout."""
+
     lines = [
         f"world={world_name}",
+        f"variant={variant}",
         f"start={(int(env.agent.initial_position.x), int(env.agent.initial_position.y))}",
         f"found={result.found}",
         f"goal={result.goal}",
@@ -55,6 +75,8 @@ def format_report(world_name: str, result, env: GridWorld) -> str:
 
 
 def replay(env: GridWorld, actions: list[int], speed: float) -> None:
+    """Replays the discovered A* path in the pygame window."""
+
     step_delay = 0.12 / speed
     env.reset()
     env.render()
@@ -65,6 +87,8 @@ def replay(env: GridWorld, actions: list[int], speed: float) -> None:
 
 
 def wait_for_close(env: GridWorld) -> None:
+    """Keeps the final rendered world visible until the user closes it."""
+
     while True:
         should_close = False
         for event in pg.event.get():
@@ -79,8 +103,11 @@ def wait_for_close(env: GridWorld) -> None:
 
 
 def main() -> int:
+    """Parses CLI args, runs A*, writes the report, and optionally replays the path."""
+
     parser = argparse.ArgumentParser(description="Run deterministic A* search on a GridWorld.")
     parser.add_argument("--world", choices=sorted(WORLD_CONFIG), default="small")
+    parser.add_argument("--variant", type=int, default=1, help="1-based map variant index within the selected world set.")
     parser.add_argument("--no-render", action="store_true", help="Skip the graphical replay.")
     parser.add_argument(
         "--speed",
@@ -92,14 +119,14 @@ def main() -> int:
     if args.speed <= 0:
         raise ValueError("--speed must be greater than 0.")
 
-    env = build_env(args.world)
+    env = build_env(args.world, args.variant)
     try:
         result = aStarSearch(env)
-        report = format_report(args.world, result, env)
+        report = format_report(args.world, args.variant, result, env)
 
         logs_dir = REPO_ROOT / "logs" / "astar"
         logs_dir.mkdir(parents=True, exist_ok=True)
-        report_path = logs_dir / f"{args.world}_report.txt"
+        report_path = logs_dir / f"{args.world}_{args.variant:03d}_report.txt"
         report_path.write_text(report, encoding="utf-8")
 
         print(report, end="")

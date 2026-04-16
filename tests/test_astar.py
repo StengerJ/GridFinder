@@ -1,11 +1,11 @@
-from __future__ import annotations
-
 import os
+from pathlib import Path
 import unittest
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 from examples.search.Astar.astar import aStarSearch, iterateThroughNeighbors, h
+from examples.search.Astar.main import build_env, get_world_path
 from gridworld import GridWorld
 
 
@@ -26,6 +26,8 @@ wwwww
 
 
 class TestAstar(unittest.TestCase):
+    """Exercises both the search logic and the disk-backed world selection."""
+
     def test_manhattan_uses_nearest_goal(self):
         self.assertEqual(h((1, 1), [(4, 1), (2, 5)]), 3)
 
@@ -64,3 +66,16 @@ class TestAstar(unittest.TestCase):
             self.assertEqual(result.actions, [])
         finally:
             env.close()
+
+    def test_disk_backed_small_variant_builds(self):
+        env = build_env("small", 1)
+        try:
+            result = aStarSearch(env)
+            self.assertTrue(result.found)
+        finally:
+            env.close()
+
+    def test_world_variant_path_exists_on_disk(self):
+        path = get_world_path("big", 25)
+        self.assertIsInstance(path, Path)
+        self.assertTrue(path.exists())

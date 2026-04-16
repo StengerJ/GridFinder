@@ -1,0 +1,55 @@
+{
+  "seed": 0,
+  "ppo": {
+    "total_steps": 1500000,
+    "num_envs": 16,
+    "rollout_steps": 256,
+    "ppo_epochs": 4,
+    "num_minibatches": 8,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_coef": 0.2,
+    "learning_rate": 0.0003,
+    "entropy_coef": 0.01,
+    "value_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "eval_interval": 20000,
+    "eval_episodes": 200,
+    "target_success_rate": 0.8,
+    "forced_promotion_steps": 400000,
+    "frame_stack": 4,
+    "view_size": 11
+  },
+  "stages": {
+    "1": {
+      "stage_id": 1,
+      "size": 11,
+      "wall_probability": 0.08,
+      "hole_probability": 0.02,
+      "min_goal_distance": 4,
+      "max_steps": 80,
+      "train_count": 64,
+      "eval_count": 16
+    },
+    "2": {
+      "stage_id": 2,
+      "size": 15,
+      "wall_probability": 0.12,
+      "hole_probability": 0.05,
+      "min_goal_distance": 6,
+      "max_steps": 140,
+      "train_count": 64,
+      "eval_count": 16
+    },
+    "3": {
+      "stage_id": 3,
+      "size": 19,
+      "wall_probability": 0.16,
+      "hole_probability": 0.08,
+      "min_goal_distance": 8,
+      "max_steps": 220,
+      "train_count": 64,
+      "eval_count": 16
+    }
+  }
+}
